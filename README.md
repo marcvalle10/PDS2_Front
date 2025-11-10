@@ -2,7 +2,7 @@
 
 ## 🛠️ Stack de Tecnologias
 
-- **Framework**: [Next.js 15](https://nextjs.org) con App Router
+- **Framework**: [Next.js 15](https://nextjs.org)
 - **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
 - **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
 - **Iconos**: [Lucide React](https://lucide.dev/)
@@ -59,13 +59,11 @@ carga-archivos-frontend/
 └── README.md                       # Este archivo que estamos leyendo
 ```
 
-## 🏗️ Arquitectura de Componentes
-
 ### Organización
 
 1. **Separación por Funcionalidad**: Cada feature tiene su propia carpeta
 2. **Tipos Centralizados**: Las interfaces se encuentran en `src/types/`
-3. **Hooks Personalizados**: Lógica reutilizable separada de la UI
+3. **Hooks Personalizados**: Lógica separada de la UI
 
 
 ## 🚀 Instalación y Desarrollo
