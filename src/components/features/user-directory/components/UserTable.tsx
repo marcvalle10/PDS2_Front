@@ -3,11 +3,14 @@ import { Search } from "lucide-react";
 import { UserAvatar } from "./UserAvatar";
 import { UserTableProps, User } from "@/types";
 import { useDropdown } from "@/hooks/useDropdown";
+import { useUsers } from "@/hooks/useUsers";
+import { UserTableSkeleton } from "./UserTableSkeleton";
 
 export function UserTable({
   currentUsers,
   onModifyUserRole,
   onDeleteUser,
+  loading = false,
 }: UserTableProps) {
   const {
     openDropdownId,
@@ -16,11 +19,15 @@ export function UserTable({
     setButtonRef,
     setDropdownRef,
   } = useDropdown();
+  const { roles } = useUsers();
 
-  const handleModifyUserRole = (user: User, role: string) => {
-    onModifyUserRole(user, role);
+  const handleModifyUserRole = (user: User, roleId: number) => {
+    onModifyUserRole(user, roleId);
     closeDropdown();
   };
+  if (loading) {
+    return <UserTableSkeleton />;
+  }
 
   return (
     <div className="overflow-visible px-2 sm:px-6 lg:px-[45px]">
@@ -163,17 +170,15 @@ export function UserTable({
                         ref={(el) => setDropdownRef(user.id, el)}
                         className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg w-36 z-10"
                       >
-                        {["Administrador", "Profesor", "Coordinador"].map(
-                          (role) => (
-                            <button
-                              key={role}
-                              onClick={() => handleModifyUserRole(user, role)}
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-[#2E4258]"
-                            >
-                              {role}
-                            </button>
-                          )
-                        )}
+                        {roles.map((role) => (
+                          <button
+                            key={role.id}
+                            onClick={() => handleModifyUserRole(user, role.id)}
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-[#2E4258]"
+                          >
+                            {role.nombre}
+                          </button>
+                        ))}
                       </div>
                     )}
 

@@ -21,6 +21,7 @@ export function UserDirectory() {
     currentPage,
     currentUsers,
     totalPages,
+    loading,
     handleSearch,
     handleRoleFilter,
     handleModifyUserRole,
@@ -65,6 +66,7 @@ export function UserDirectory() {
             currentUsers={currentUsers}
             onModifyUserRole={handleModifyUserRole}
             onDeleteUser={handleDeleteUser}
+            loading={loading}
           />
 
           <div

@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
-import { User, mockUsers, UseUserDirectoryReturn } from "@/types";
+import { User, UseUserDirectoryReturn } from "@/types";
+import { useUsers } from "./useUsers";
 
 export function useUserDirectory(): UseUserDirectoryReturn {
-  const [users, setUsers] = useState(mockUsers);
+  const { users, loading, error, modifyUserRole, removeUser } = useUsers();
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
@@ -45,12 +46,12 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     setCurrentPage(1);
   };
 
-  const handleModifyUserRole = (user: User, role: string) => {
-    const newUsers = users.map((u) => {
-      if (u.id === user.id) return { ...u, rol: role };
-      return u;
-    });
-    setUsers(newUsers);
+  const handleModifyUserRole = async (user: User, roleId: number) => {
+    try {
+      await modifyUserRole(user, roleId);
+    } catch (error) {
+      console.error("Error al modificar rol:", error);
+    }
   };
 
   const handleDeleteUser = (user: User) => {
@@ -58,11 +59,15 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-      setShowDeleteModal(false);
-      setUserToDelete(null);
+      try {
+        await removeUser(userToDelete);
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+      } catch (error) {
+        console.error("Error al eliminar usuario", error);
+      }
     }
   };
 
@@ -82,6 +87,8 @@ export function useUserDirectory(): UseUserDirectoryReturn {
     currentPage,
     currentUsers,
     totalPages,
+    loading,
+    error,
 
     // Handlers
     handleSearch,

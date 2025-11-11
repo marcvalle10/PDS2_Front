@@ -18,8 +18,9 @@ export interface SearchFiltersProps {
  */
 export interface UserTableProps {
   currentUsers: User[];
-  onModifyUserRole: (user: User, role: string) => void;
+  onModifyUserRole: (user: User, roleId: number) => void;
   onDeleteUser: (user: User) => void;
+  loading?: boolean;
 }
 
 /**
@@ -51,12 +52,14 @@ export interface UseUserDirectoryReturn {
   currentPage: number;
   currentUsers: User[];
   totalPages: number;
+  loading?: boolean;
+  error?: string | null;
 
   // Handlers
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleRoleFilter: (role: string) => void;
   handleDeleteUser: (user: User) => void;
-  handleModifyUserRole: (user: User, role: string) => void;
+  handleModifyUserRole: (user: User, roleId: number) => void;
   confirmDelete: () => void;
   paginate: (pageNumber: number) => void;
   setShowRoleDropdown: React.Dispatch<React.SetStateAction<boolean>>;
