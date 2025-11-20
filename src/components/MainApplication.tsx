@@ -15,10 +15,6 @@ export function MainApplication() {
     }
   };
 
-  const handleUploadClick = () => {
-    setCurrentView("upload");
-    setActiveTab("roles");
-  };
 
   const handleHistoryClick = () => {
     setActiveTab("historico");
@@ -39,7 +35,7 @@ export function MainApplication() {
           <FileUploadView onHistoryClick={handleHistoryClick} />
         )}
         {activeTab === "historico" && (
-          <HistoricalReportView onUploadClick={handleUploadClick} />
+          <HistoricalReportView />
         )}
       </div>
     </div>
