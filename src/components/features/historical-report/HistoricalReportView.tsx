@@ -3,6 +3,7 @@ import { Bentham } from "next/font/google";
 import { Button, Modal } from "@/components/ui";
 import { HistoricalTable } from "./HistoricalTable";
 import { mockHistoricalData } from "@/data/mockHistoricalData";
+import { mockFileHistoryData } from "@/data/mockFileHistoryData";
 
 // Configurar la fuente Bentham
 const bentham = Bentham({
@@ -414,14 +415,7 @@ export function HistoricalReportView() {
 
 							{/* Table Content */}
 							<div className="divide-y divide-gray-200">
-								{[
-									{ date: "14/09/25", filename: "Lista ISI", status: "valid" },
-									{ date: "15/09/25", filename: "Inscripciones", status: "invalid" },
-									{ date: "16/09/25", filename: "Activos", status: "valid" },
-									{ date: "16/09/25", filename: "Alumnos 2018", status: "valid" },
-									{ date: "16/09/25", filename: "Alumnos 2017", status: "invalid" },
-									{ date: "16/09/25", filename: "Lista 01", status: "invalid" }
-								].map((item, index) => (
+								{mockFileHistoryData.map((item, index) => (
 									<div key={index} className="grid grid-cols-4 gap-4 px-4 py-3 text-center text-sm">
 										<div className="flex items-center justify-center gap-2">
 											<button className="text-gray-400 hover:text-gray-600">
