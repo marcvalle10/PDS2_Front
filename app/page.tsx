@@ -1,7 +1,7 @@
 'use client';
 
-import { UserDirectory } from '@/components/features';
+import { MainApplication } from '@/components/MainApplication';
 
 export default function HomePage() {
-  return <UserDirectory />;
+  return <MainApplication />;
 }

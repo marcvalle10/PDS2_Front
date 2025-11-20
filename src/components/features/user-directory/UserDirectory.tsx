@@ -33,15 +33,9 @@ export function UserDirectory() {
   } = useUserDirectory();
 
   return (
-    <div className="px-3 sm:px-6 lg:px-[80px] pt-2 bg-[#EDE9FF]">
-      <div
-        className="min-h-screen"
-        style={{ background: "linear-gradient(to bottom, #e8e4ff, #f3f0ff)" }}
-      >
-        <UniversityHeader />
-
-        {/* Main Content */}
-        <div className="bg-white px-3 sm:px-6 lg:px-[45px] rounded-lg shadow-lg border border-gray-200">
+    <>
+      {/* Main Content */}
+      <div className="bg-white px-3 sm:px-6 lg:px-[45px] rounded-lg shadow-lg border border-gray-200">
           {/* Title */}
           <div className="px-3 pt-4 sm:pt-6 pb-2 border-b-2 border-[#16469B]">
             <h3
@@ -82,7 +76,6 @@ export function UserDirectory() {
             onPageChange={paginate}
           />
         </div>
-      </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && userToDelete && (
@@ -137,6 +130,6 @@ export function UserDirectory() {
           </div>
         </Modal>
       )}
-    </div>
+    </>
   );
 }

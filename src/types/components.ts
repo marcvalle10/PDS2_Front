@@ -21,6 +21,7 @@ export interface UserTableProps {
   onModifyUserRole: (user: User, roleId: number) => void;
   onDeleteUser: (user: User) => void;
   loading?: boolean;
+  showActions?: boolean;
 }
 
 /**

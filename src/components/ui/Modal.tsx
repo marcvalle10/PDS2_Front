@@ -84,7 +84,7 @@ export function Modal({
             )}
           </div>
         )}
-        <div className="p-4 overflow-y-auto max-h-[calc(90vh-theme(space.16))]">
+        <div className="p-4 pt-0 overflow-y-auto max-h-[calc(90vh-theme(space.16))]">
           {children}
         </div>
       </div>
