@@ -7,6 +7,7 @@ import {
 } from "@/services/reportService";
 import { HistoricalRecord } from "@/types";
 import { useState, useEffect } from "react";
+import { uploadFile } from "@/services/fileUploadService";
 
 export function useReports() {
   const [students, setStudents] = useState<HistoricalRecord[]>([]);
@@ -94,5 +95,6 @@ export function useReports() {
     refreshFiles: loadFiles,
     refreshStudents: loadStudents,
     updateStudent,
+    uploadFile,
   };
 }

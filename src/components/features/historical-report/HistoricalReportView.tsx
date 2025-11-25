@@ -3,6 +3,7 @@ import { Bentham } from "next/font/google";
 import { Button, Modal } from "@/components/ui";
 import { HistoricalTable } from "./HistoricalTable";
 import { EditModal } from "./components/EditModal";
+
 import { useReports } from "@/hooks/useReports";
 import { FileHistoryRecord, HistoricalRecord } from "@/types";
 
@@ -26,6 +27,7 @@ export function HistoricalReportView() {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const itemsPerPage = 10;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +39,7 @@ export function HistoricalReportView() {
     updateStudent,
     refreshFiles,
     refreshStudents,
+    uploadFile,
   } = useReports();
 
   // Cerrar dropdown cuando se hace clic fuera
@@ -85,11 +88,25 @@ export function HistoricalReportView() {
     []
   );
 
-  const handleUpload = () => {
-    if (uploadedFile) {
-      // Aquí iría la lógica de upload
-      console.log("Uploading file:", uploadedFile.name);
-      handleCloseModal();
+  const handleUpload = async () => {
+    if (!uploadedFile) {
+      console.warn("No file selected");
+      return;
+    }
+
+    console.log("Uploading file:", uploadedFile.name);
+
+    try {
+      // TODO: cambiar a endpoint real
+      await uploadFile(
+        "http://localhost:3000/kardex/upload",
+        uploadedFile,
+        "file"
+      );
+
+      refreshFiles();
+    } catch (err) {
+      console.error("Upload error:", err);
     }
   };
 
@@ -536,14 +553,14 @@ export function HistoricalReportView() {
                 type="file"
                 className="hidden"
                 accept=".csv,.xlsx,.xls"
-                onChange={handleFileSelect}
+                onChange={handleUpload}
                 id="combined-file-upload"
               />
               <label
                 htmlFor="combined-file-upload"
                 className="mt-4 inline-block px-6 py-2 text-sm font-medium text-white bg-[#144257] rounded-lg hover:bg-[#0f3240] cursor-pointer"
               >
-                Subir
+                Subir archivo
               </label>
             </div>
           </div>
@@ -740,7 +757,7 @@ export function HistoricalReportView() {
                       type="file"
                       className="hidden"
                       accept=".csv,.xlsx,.xls"
-                      onChange={handleFileSelect}
+                      onChange={() => handleUpload()}
                       id="modal-file-upload"
                     />
                     <label
