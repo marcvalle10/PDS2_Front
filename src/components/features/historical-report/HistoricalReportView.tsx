@@ -99,7 +99,7 @@ export function HistoricalReportView() {
     try {
       // TODO: cambiar a endpoint real
       await uploadFile(
-        "http://localhost:3000/kardex/upload",
+        "http://localhost:5000/estructura/upload",
         uploadedFile,
         "file"
       );
