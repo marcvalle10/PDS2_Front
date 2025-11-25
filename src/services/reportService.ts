@@ -66,3 +66,11 @@ export async function editStudent(
 
   return data[0];
 }
+
+export async function deleteStudent(id: number) {
+  const { error } = await supabase.from("alumno").delete().eq("id", id);
+  if (error) {
+    console.error("Error al eliminar usuario:", error);
+    throw error;
+  }
+}

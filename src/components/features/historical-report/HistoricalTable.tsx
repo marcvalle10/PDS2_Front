@@ -4,9 +4,14 @@ import { HistoricalRecord } from "../../../types/historical";
 interface HistoricalTableProps {
   records: HistoricalRecord[];
   onEdit: (record: HistoricalRecord) => void;
+  onRemove: (record: HistoricalRecord) => void;
 }
 
-export function HistoricalTable({ records, onEdit }: HistoricalTableProps) {
+export function HistoricalTable({
+  records,
+  onEdit,
+  onRemove,
+}: HistoricalTableProps) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full table-fixed min-w-[2000px]">
@@ -344,7 +349,10 @@ export function HistoricalTable({ records, onEdit }: HistoricalTableProps) {
                       />
                     </svg>
                   </button>
-                  <button className="text-red-600 hover:text-red-800 p-1">
+                  <button
+                    onClick={() => onRemove(record)}
+                    className="text-red-600 hover:text-red-800 p-1"
+                  >
                     <svg
                       className="w-4 h-4"
                       fill="none"

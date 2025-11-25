@@ -33,7 +33,8 @@ export function HistoricalReportView() {
     students,
     files,
     removeFile,
-    editStudent,
+    removeStudent,
+    updateStudent,
     refreshFiles,
     refreshStudents,
   } = useReports();
@@ -109,6 +110,12 @@ export function HistoricalReportView() {
 
   const handleDeleteFile = (file: FileHistoryRecord) => {
     removeFile(file);
+    refreshFiles();
+  };
+
+  const handleDeleteStudent = (student: HistoricalRecord) => {
+    removeStudent(student);
+    refreshStudents();
   };
 
   const handleEditRecord = (record: HistoricalRecord) => {
@@ -117,8 +124,8 @@ export function HistoricalReportView() {
   };
 
   async function handleSave(updated: HistoricalRecord) {
-    editStudent(editingRecord!.id, updated);
-
+    updateStudent(editingRecord!.id, updated);
+    refreshStudents();
     setIsModalOpen(false);
     setEditingRecord(null);
   }
@@ -311,7 +318,11 @@ export function HistoricalReportView() {
 
         {/* Historical Table */}
         <div className="px-3 py-4">
-          <HistoricalTable records={paginatedData} onEdit={handleEditRecord} />
+          <HistoricalTable
+            records={paginatedData}
+            onEdit={handleEditRecord}
+            onRemove={handleDeleteStudent}
+          />
         </div>
         {editingRecord && (
           <EditModal

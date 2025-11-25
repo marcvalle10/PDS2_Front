@@ -1,6 +1,10 @@
 import { FileHistoryRecord } from "@/types/historical";
 import { deleteFile, getFiles } from "@/services/fileService";
-import { getStudents, editStudent } from "@/services/reportService";
+import {
+  getStudents,
+  editStudent,
+  deleteStudent,
+} from "@/services/reportService";
 import { HistoricalRecord } from "@/types";
 import { useState, useEffect } from "react";
 
@@ -63,6 +67,17 @@ export function useReports() {
       throw err;
     }
   };
+  const removeStudent = async (student: HistoricalRecord) => {
+    try {
+      await deleteStudent(student.id);
+      setStudents((prevStudents) =>
+        prevStudents.filter((s) => s.id !== student.id)
+      );
+    } catch (err) {
+      setError("Error al eliminar alumno");
+      throw err;
+    }
+  };
 
   useEffect(() => {
     loadStudents();
@@ -75,8 +90,9 @@ export function useReports() {
     loading,
     error,
     removeFile,
+    removeStudent,
     refreshFiles: loadFiles,
     refreshStudents: loadStudents,
-    editStudent,
+    updateStudent,
   };
 }
