@@ -7,6 +7,7 @@ import { EditModal } from "./components/EditModal";
 import { useReports } from "@/hooks/useReports";
 import { FileHistoryRecord, HistoricalRecord } from "@/types";
 
+
 // Configurar la fuente Bentham
 const bentham = Bentham({
   weight: "400",
@@ -289,6 +290,7 @@ export function HistoricalReportView() {
 
           {/* Right side: Action buttons */}
           <div className="flex items-center gap-2">
+            
             {/* Historial Button */}
             <Button
               variant="outline"
@@ -330,6 +332,42 @@ export function HistoricalReportView() {
               </svg>
               Cargar archivo
             </Button>
+
+            <Button
+  onClick={() => {
+    const emptyRecord = {
+      id: 0, // id dummy, el backend luego pondrá el real al crear
+      nombre: "",
+      email: "",
+      matricula: "",
+      expediente: "",
+      estadoAcademico: "ACTIVO",
+      // el resto de campos faltantes se quedarán como undefined
+      // y el modal solo mostrará los que tengas en inputs
+    } as unknown as HistoricalRecord;
+
+    setEditingRecord(emptyRecord);
+    setIsModalOpen(true);
+  }}
+  className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+>
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 4v16m8-8H4"
+    />
+  </svg>
+  Crear registro
+</Button>
+
+
           </div>
         </div>
 
@@ -341,11 +379,30 @@ export function HistoricalReportView() {
             onRemove={handleDeleteStudent}
           />
         </div>
-        {editingRecord && (
+        {isModalOpen && (
           <EditModal
-            record={editingRecord}
-            onSave={handleSave}
-            onClose={() => setIsModalOpen(false)}
+            record={editingRecord ?? {}}
+            mode={editingRecord?.id ? "edit" : "create"}
+            onSave={(data) => {
+              if (editingRecord?.id) {
+                // EDITAR
+                updateStudent(editingRecord.id, data);
+              } else {
+                // CREAR
+                // Tu hook ya tiene "students", así que agregarías:
+                const newId = Math.floor(Math.random() * 1000000);
+                const nuevo = { id: newId, ...data };
+
+                // add to store
+                refreshStudents(); // si tienes addStudent, úsalo en su lugar
+              }
+              refreshStudents();
+              setEditingRecord(null);
+            }}
+            onClose={() => {
+              setIsModalOpen(false);
+              setEditingRecord(null);
+            }}
           />
         )}
 
@@ -435,6 +492,8 @@ export function HistoricalReportView() {
               »
             </button>
           </div>
+
+          
 
           {/* Right side with Export Button */}
           <div className="flex-1 flex justify-end">

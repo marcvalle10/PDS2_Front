@@ -1,4 +1,4 @@
-// Tipos específicos para los datos históricos
+
 export interface HistoricalRecord {
   id: number;
   matricula: string;
@@ -6,10 +6,15 @@ export interface HistoricalRecord {
   nombre: string;
   email: string;
   estadoAcademico: "ACTIVO" | "INACTIVO";
+
+  estadoAcreditacion?: "Acreditado" | "Pendiente" | "En proceso" | "Revisión" | "N/A";
+  kpi?: string; 
+
   nivelIngles: string;
   planEstudios: string;
   creditos: string;
   sexo: string;
+  nip?: string;
   fechaNacimiento: string;
   tipoAlumno: string;
   promedioGeneral: string;

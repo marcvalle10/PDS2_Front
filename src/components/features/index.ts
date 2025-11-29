@@ -1,4 +1,5 @@
-// Características principales de la aplicación
 export * from "./user-directory";
 export * from "./file-upload";
 export * from "./historical-report";
+export * from "./schedule-report";
+export { default as AttendanceReportView } from "./attendance-report/AttendanceReportView";

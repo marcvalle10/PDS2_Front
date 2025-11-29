@@ -2,19 +2,25 @@
 
 import React, { useState } from "react";
 import { UniversityHeaderOnly, NavigationTabs } from "@/components/shared";
-import { UserDirectory, FileUploadView, HistoricalReportView } from "@/components/features";
+import {UserDirectory, FileUploadView, HistoricalReportView, ScheduleReportView, AttendanceReportView } from "@/components/features";
+
+
 
 export function MainApplication() {
-  const [activeTab, setActiveTab] = useState<"roles" | "historico">("roles");
+  
+  const [activeTab, setActiveTab] = useState<"roles" | "historico" | "horarios" | "asistencia">("roles");
   const [currentView, setCurrentView] = useState<"directory" | "upload">("directory");
+  
+  
 
-  const handleTabChange = (tab: "roles" | "historico") => {
-    setActiveTab(tab);
-    if (tab === "roles") {
-      setCurrentView("directory");
-    }
-  };
-
+  const handleTabChange = (
+  tab: "roles" | "historico" | "horarios" | "asistencia"
+) => {
+  setActiveTab(tab);
+  if (tab === "roles") {
+    setCurrentView("directory");
+  }
+};
 
   const handleHistoryClick = () => {
     setActiveTab("historico");
@@ -31,12 +37,16 @@ export function MainApplication() {
 
         {/* Main Content */}
         {activeTab === "roles" && currentView === "directory" && <UserDirectory />}
+
         {activeTab === "roles" && currentView === "upload" && (
           <FileUploadView onHistoryClick={handleHistoryClick} />
         )}
-        {activeTab === "historico" && (
-          <HistoricalReportView />
-        )}
+
+        {activeTab === "historico" && <HistoricalReportView />}
+
+      
+        {activeTab === "horarios" && <ScheduleReportView />}
+        {activeTab === "asistencia" && <AttendanceReportView />}
       </div>
     </div>
   );
