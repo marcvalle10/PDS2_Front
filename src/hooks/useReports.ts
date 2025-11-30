@@ -16,18 +16,50 @@ export function useReports() {
   const [error, setError] = useState<string | null>(null);
 
   const loadStudents = async () => {
-    try {
-      setLoading(true);
-      const reportData = await getStudents();
-      setStudents(reportData);
-      setError(null);
-    } catch (err) {
-      setError("Error al cargar los usuarios");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const reportData = await getStudents();
+
+    const normalized = reportData.map((s) => ({
+      id: s.id,
+      matricula: s.matricula,
+      expediente: s.expediente,
+      nombre: s.nombre,
+      email: s.email,
+      estadoAcademico: s.estadoAcademico,
+      estadoAcreditacion: s.estadoAcreditacion,
+      kpi: s.kpi,
+      nivelIngles: s.nivelIngles,
+      planEstudios: s.planEstudios,
+      creditos: s.creditos,
+      sexo: s.sexo,
+      nip: s.nip,
+      fechaNacimiento: s.fechaNacimiento,
+      tipoAlumno: s.tipoAlumno,
+      promedioGeneral: s.promedioGeneral,
+      promedioPeriodo: s.promedioPeriodo,
+      materiasAprobadas: s.materiasAprobadas,
+      materiasReprobadas: s.materiasReprobadas,
+      periodoInicio: s.periodoInicio,
+      actaExamenProfesional: s.actaExamenProfesional,
+      constanciaExencion: s.constanciaExencion,
+      fechaTitulacion: s.fechaTitulacion,
+      creditosCulturest: s.creditosCulturest,
+      creditosDeportes: s.creditosDeportes,
+      acciones: "",
+    }));
+
+    setStudents(normalized);
+    setError(null);
+
+  } catch (err) {
+    setError("Error al cargar los usuarios");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const loadFiles = async () => {
     try {

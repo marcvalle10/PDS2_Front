@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { HistoricalRecord } from "@/types";
+import { act } from "react";
 
 export async function getStudents(): Promise<HistoricalRecord[]> {
   const { data, error } = await supabase
@@ -35,7 +36,15 @@ export async function getStudents(): Promise<HistoricalRecord[]> {
     fechaNacimiento: alumno.fecha_nacimiento,
     tipoAlumno: alumno.tipo_alumno,
     promedioGeneral: alumno.promedio_general,
-    horarioPerido: alumno.promedio_periodo,
+    promedioPeriodo: alumno.promedio_periodo,
+    materiasAprobadas: alumno.materias_aprobadas,
+    materiasReprobadas: alumno.materias_reprobadas,
+    periodoInicio: alumno.periodo_inicio,
+    actaExamenProfesional: alumno.acta_examen_profesional,
+    constanciaExencion: alumno.constancia_exencion,
+    fechaTitulacion: alumno.fecha_titulacion,
+    creditosCulturest: alumno.creditos_culturest,
+    creditosDeportes: alumno.creditos_deportes,
     acciones: "",
   }));
 }
@@ -57,7 +66,15 @@ export async function editStudent(
       fecha_nacimiento: updatedData.fechaNacimiento,
       tipo_alumno: updatedData.tipoAlumno,
       promedio_general: updatedData.promedioGeneral,
-      promedio_periodo: updatedData.horarioPerido,
+      promedio_periodo: updatedData.promedioPeriodo,
+      materias_aprobadas: updatedData.materiasAprobadas,
+      materias_reprobadas: updatedData.materiasReprobadas,
+      periodo_inicio: updatedData.periodoInicio,
+      acta_examen_profesional: updatedData.actaExamenProfesional,
+      constancia_exencion: updatedData.constanciaExencion,
+      fecha_titulacion: updatedData.fechaTitulacion,
+      creditos_culturest: updatedData.creditosCulturest,
+      creditos_deportes: updatedData.creditosDeportes,
     })
     .eq("id", id)
     .select();
