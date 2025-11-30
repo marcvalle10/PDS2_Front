@@ -7,9 +7,12 @@ const bentham = Bentham({
   subsets: ["latin"],
 });
 
+type TabKey = "roles" | "historico" | "horarios" | "asistencia" | "planes";
+
+
 interface NavigationTabsProps {
-  activeTab: "roles" | "historico" | "horarios" | "asistencia";
-  onTabChange: (tab: "roles" | "historico" | "horarios" | "asistencia") => void;
+  activeTab: TabKey;
+  onTabChange: (tab: TabKey) => void;
 }
 
 export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) {
@@ -17,7 +20,7 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) 
     <div className="bg-[#E6B10F] text-white px-3 sm:px-6 shadow-sm">
       <div className="flex">
 
-        {/* Gestión de Roles */}
+       
         <button
           onClick={() => onTabChange("roles")}
           className={`py-3 sm:py-6 px-4 sm:px-6 text-base sm:text-xl font-normal transition-colors ${
@@ -29,7 +32,7 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) 
           <span className={bentham.className}>Gestión de Roles</span>
         </button>
 
-        {/* Reporte Histórico */}
+        
         <button
           onClick={() => onTabChange("historico")}
           className={`py-3 sm:py-6 px-4 sm:px-6 text-base sm:text-xl font-normal transition-colors ${
@@ -41,7 +44,6 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) 
           <span className={bentham.className}>Reporte Histórico</span>
         </button>
 
-        {/* 📌 Nueva pestaña: Horarios */}
         <button
           onClick={() => onTabChange("horarios")}
           className={`py-3 sm:py-6 px-4 sm:px-6 text-base sm:text-xl font-normal transition-colors ${
@@ -61,7 +63,18 @@ export function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) 
               : "text-[#FFFFFF] bg-[#E6B10F] hover:bg-[#E6B10F]"
           }`}
         >
-          <span className={bentham.className}>Asistencia</span>
+          <span className={bentham.className}>Grupos</span>
+        </button>
+
+        <button
+          onClick={() => onTabChange("planes")}
+          className={`py-3 sm:py-6 px-4 sm:px-6 text-base sm:text-xl font-normal transition-colors ${
+            activeTab === "planes"
+              ? "text-[#16469B] bg-[#E6B10F]"
+              : "text-[#FFFFFF] bg-[#E6B10F] hover:bg-[#E6B10F]"
+          }`}
+        >
+          <span className={bentham.className}>Planes de estudio</span>
         </button>
 
       </div>

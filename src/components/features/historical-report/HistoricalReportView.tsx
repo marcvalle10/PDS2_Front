@@ -28,6 +28,9 @@ export function HistoricalReportView() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Sin Especificar");
+  const [planFilter, setPlanFilter] = useState("Todos");
+  const [tipoFilter, setTipoFilter] = useState("Todos");
+  const [sexoFilter, setSexoFilter] = useState("Todos");
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [editingRecord, setEditingRecord] = useState<HistoricalRecord | null>(
@@ -167,24 +170,64 @@ export function HistoricalReportView() {
     await refreshStudents();
   }
 
+  // Opciones únicas para filtros extra
+  const planOptions = Array.from(
+    new Set(
+      students
+        .map((r) => r.planEstudios)
+        .filter((v): v is string => !!v && v.trim() !== "")
+    )
+  ).sort();
 
+  const tipoOptions = Array.from(
+    new Set(
+      students
+        .map((r) => r.tipoAlumno)
+        .filter((v): v is string => !!v && v.trim() !== "")
+    )
+  ).sort();
+
+  const sexoOptions = Array.from(
+    new Set(
+      students
+        .map((r) => r.sexo)
+        .filter((v): v is string => !!v && v.trim() !== "")
+    )
+  ).sort();
 
 
   // Filtrar datos según búsqueda y estatus
   const filteredData = students.filter((record) => {
-  const matchesSearch =
-    !searchTerm ||
-    record.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.matricula.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    record.expediente.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      !searchTerm ||
+      record.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.matricula.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.expediente.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const matchesStatus =
-    statusFilter === "Sin Especificar" ||
-    record.estadoAcademico.toUpperCase() === statusFilter.toUpperCase();
+    const matchesStatus =
+      statusFilter === "Sin Especificar" ||
+      record.estadoAcademico.toUpperCase() === statusFilter.toUpperCase();
 
-  return matchesSearch && matchesStatus;
-});
+    const matchesPlan =
+      planFilter === "Todos" || record.planEstudios === planFilter;
+
+    const matchesTipo =
+      tipoFilter === "Todos" ||
+      (record.tipoAlumno ?? "").toUpperCase() === tipoFilter.toUpperCase();
+
+    const matchesSexo =
+      sexoFilter === "Todos" ||
+      (record.sexo ?? "").toUpperCase() === sexoFilter.toUpperCase();
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPlan &&
+      matchesTipo &&
+      matchesSexo
+    );
+  });
 
 
 
@@ -310,6 +353,57 @@ export function HistoricalReportView() {
                 </div>
               )}
             </div>
+            {/* Filtro Plan de estudios */}
+            <select
+              value={planFilter}
+              onChange={(e) => {
+                setPlanFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="Todos">Todos los planes</option>
+              {planOptions.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro Tipo de alumno */}
+            <select
+              value={tipoFilter}
+              onChange={(e) => {
+                setTipoFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="Todos">Todos los tipos</option>
+              {tipoOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro Sexo */}
+            <select
+              value={sexoFilter}
+              onChange={(e) => {
+                setSexoFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="Todos">Ambos sexos</option>
+              {sexoOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+
           </div>
 
           {/* Right side: Action buttons */}

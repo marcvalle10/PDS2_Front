@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Bentham } from "next/font/google";
 import { Button, Modal } from "@/components/ui";
 import {
@@ -56,6 +56,65 @@ export default function ScheduleReportView() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
+
+  // Filtros individuales
+  const [filterPeriodo, setFilterPeriodo] = useState<string>("ALL");
+  const [filterCodigo, setFilterCodigo] = useState<string>("ALL");
+  const [filterGrupo, setFilterGrupo] = useState<string>("ALL");
+  const [filterNumEmpleado, setFilterNumEmpleado] = useState<string>("ALL");
+
+  // Opciones únicas derivadas de los registros
+  const periodoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          horarios
+            .map((r) => r.periodo)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [horarios]
+  );
+
+  const codigoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          horarios
+            .map((r) => r.codigo_materia)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [horarios]
+  );
+
+  const grupoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          horarios
+            .map((r) => r.grupo)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [horarios]
+  );
+
+  const numEmpleadoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          horarios
+            .map((r) =>
+              r.num_empleado !== null && r.num_empleado !== undefined
+                ? String(r.num_empleado)
+                : ""
+            )
+            .filter((v) => v.trim() !== "")
+        )
+      ).sort(),
+    [horarios]
+  );
 
   const formatearFechaCorta = (iso: string): string => {
     const d = new Date(iso);
@@ -132,15 +191,30 @@ export default function ScheduleReportView() {
   };
 
   // Filtro por búsqueda (materia, profe, grupo, periodo, aula, etc.)
-  const filtered = horarios.filter((r) =>
-    `${r.periodo ?? ""} ${r.codigo_materia ?? ""} ${r.nombre_materia ?? ""} ${
-      r.grupo ?? ""
-    } ${r.profesor_nombre ?? ""} ${r.profesor_apellido_paterno ?? ""} ${
-      r.profesor_apellido_materno ?? ""
-    } ${r.aula ?? ""}`
+  const filtered = horarios.filter((r) => {
+    const texto = `${r.periodo ?? ""} ${r.codigo_materia ?? ""} ${
+      r.nombre_materia ?? ""
+    } ${r.grupo ?? ""} ${r.profesor_nombre ?? ""} ${
+      r.profesor_apellido_paterno ?? ""
+    } ${r.profesor_apellido_materno ?? ""} ${r.aula ?? ""}`
       .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+      .includes(search.toLowerCase());
+
+    const matchesPeriodo =
+      filterPeriodo === "ALL" || r.periodo === filterPeriodo;
+
+    const matchesCodigo =
+      filterCodigo === "ALL" || r.codigo_materia === filterCodigo;
+
+    const matchesGrupo =
+      filterGrupo === "ALL" || r.grupo === filterGrupo;
+
+    const matchesNumEmpleado =
+      filterNumEmpleado === "ALL" ||
+      String(r.num_empleado ?? "") === filterNumEmpleado;
+
+    return texto && matchesPeriodo && matchesCodigo && matchesGrupo && matchesNumEmpleado;
+  });
 
   const totalItems = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
@@ -384,9 +458,10 @@ export default function ScheduleReportView() {
     return (
       <div className="bg-white px-3 sm:px-6 lg:px-[54px] rounded-lg shadow-lg border border-gray-200">
         {/* Header: buscador + botones */}
-        <div className="flex justify-between items-center px-3 pt-4 sm:pt-6 pb-4 border-b-2 border-[#16469B]">
-          {/* IZQUIERDA: buscador */}
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-3 pt-4 sm:pt-6 pb-4 border-b-2 border-[#16469B]">
+          {/* IZQUIERDA: buscador + filtros */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            {/* Buscador */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg
@@ -411,9 +486,77 @@ export default function ScheduleReportView() {
                   setCurrentPage(1);
                 }}
                 placeholder="Buscar materia, profesor, grupo, aula..."
-                className="w-72 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-72 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
+
+            {/* Filtro Periodo */}
+            <select
+              value={filterPeriodo}
+              onChange={(e) => {
+                setFilterPeriodo(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="ALL">Todos los periodos</option>
+              {periodoOptions.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro Código materia */}
+            <select
+              value={filterCodigo}
+              onChange={(e) => {
+                setFilterCodigo(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="ALL">Todas las materias</option>
+              {codigoOptions.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro Grupo */}
+            <select
+              value={filterGrupo}
+              onChange={(e) => {
+                setFilterGrupo(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="ALL">Todos los grupos</option>
+              {grupoOptions.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+
+            {/* Filtro Núm. empleado */}
+            <select
+              value={filterNumEmpleado}
+              onChange={(e) => {
+                setFilterNumEmpleado(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="ALL">Todos los empleados</option>
+              {numEmpleadoOptions.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* DERECHA: botones */}
@@ -479,6 +622,7 @@ export default function ScheduleReportView() {
             </Button>
           </div>
         </div>
+
 
         {/* Tabla + resumen */}
         <div className="px-3 py-4">

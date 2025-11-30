@@ -2,20 +2,18 @@
 
 import React, { useState } from "react";
 import { UniversityHeaderOnly, NavigationTabs } from "@/components/shared";
-import {UserDirectory, FileUploadView, HistoricalReportView, ScheduleReportView, AttendanceReportView } from "@/components/features";
+import {UserDirectory, FileUploadView, HistoricalReportView, ScheduleReportView, AttendanceReportView, PlanReportView } from "@/components/features";
 
 
 
 export function MainApplication() {
-  
-  const [activeTab, setActiveTab] = useState<"roles" | "historico" | "horarios" | "asistencia">("roles");
-  const [currentView, setCurrentView] = useState<"directory" | "upload">("directory");
-  
-  
 
-  const handleTabChange = (
-  tab: "roles" | "historico" | "horarios" | "asistencia"
-) => {
+  type TabKey = "roles" | "historico" | "horarios" | "asistencia" | "planes";
+  
+  const [activeTab, setActiveTab] = useState<TabKey>("roles");
+const [currentView, setCurrentView] = useState<"directory" | "upload">("directory");
+
+const handleTabChange = (tab: TabKey) => {
   setActiveTab(tab);
   if (tab === "roles") {
     setCurrentView("directory");
@@ -47,6 +45,7 @@ export function MainApplication() {
       
         {activeTab === "horarios" && <ScheduleReportView />}
         {activeTab === "asistencia" && <AttendanceReportView />}
+        {activeTab === "planes" && <PlanReportView />}
       </div>
     </div>
   );

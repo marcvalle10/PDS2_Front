@@ -2,6 +2,13 @@ import { supabase } from "@/lib/supabase";
 import { HistoricalRecord } from "@/types/historical";
 
 // Fila que viene de la tabla alumno + relación plan_estudio
+type PlanEstudioRow = {
+  id: number;
+  nombre: string;
+  version: string;
+};
+
+// Fila que viene de la tabla alumno + relación plan_estudio
 export type AlumnoRow = {
   id: number;
   matricula: string;
@@ -27,13 +34,12 @@ export type AlumnoRow = {
   fecha_titulacion: string | null;
   creditos_culturest: number | null;
   creditos_deportes: number | null;
-  // Relación: alumno.plan_estudio -> la mapeamos como 'plan'
-    plan?: {
-    id: number;
-    nombre: string;
-    version: string;
-  }[] | null;
+
+ 
+  plan?: PlanEstudioRow | PlanEstudioRow[] | null;
 };
+
+
 
 // Datos recibidos desde el modal (puedes añadir aquí más campos si los necesitas)
 export type HistoricalFormData = Partial<HistoricalRecord> & {
@@ -51,13 +57,21 @@ export function mapAlumnoToHistorical(alumno: AlumnoRow): HistoricalRecord {
   const estado: "ACTIVO" | "INACTIVO" =
     alumno.estado_academico === "INACTIVO" ? "INACTIVO" : "ACTIVO";
 
-  // 👇 Si plan viene como arreglo, tomamos el primero
-  const planObj =
-    alumno.plan && alumno.plan.length > 0 ? alumno.plan[0] : undefined;
+  // 🔍 Normalizamos el plan: puede venir como objeto o como arreglo
+  let planLabel = "";
 
-  const planLabel = planObj
-    ? `${planObj.nombre} ${planObj.version}`
-    : "";
+  if (Array.isArray(alumno.plan)) {
+    const p = alumno.plan[0];
+    if (p) {
+      planLabel = `${p.nombre} ${p.version}`;
+    }
+  } else if (alumno.plan) {
+    // caso: viene como objeto simple
+    planLabel = `${alumno.plan.nombre} ${alumno.plan.version}`;
+  } else {
+    // (opcional) último fallback: al menos mostramos el id
+    // planLabel = `Plan ${alumno.plan_estudio_id}`;
+  }
 
   return {
     id: alumno.id,
@@ -70,7 +84,7 @@ export function mapAlumnoToHistorical(alumno: AlumnoRow): HistoricalRecord {
 
     estadoAcademico: estado,
     nivelIngles: alumno.nivel_ingles_actual ?? "",
-    planEstudios: planLabel,
+    planEstudios: planLabel,              // 👈 AHORA SÍ VIENE LLENO
     sexo: alumno.sexo ?? "",
 
     creditos: alumno.total_creditos ?? 0,
@@ -82,13 +96,12 @@ export function mapAlumnoToHistorical(alumno: AlumnoRow): HistoricalRecord {
 
     materiasAprobadas: alumno.materias_aprobadas ?? 0,
     materiasReprobadas: alumno.materias_reprobadas ?? 0,
-    periodoInicio: alumno.periodo_inicio,
+    periodoInicio: alumno.periodo_inicio ?? 0,
 
     actaExamenProfesional: alumno.acta_examen_profesional,
     constanciaExencionExamenProfesional:
       alumno.constancia_exencion_examen_profesional,
     fechaTitulacion: alumno.fecha_titulacion,
-
     creditosCulturest: alumno.creditos_culturest ?? 0,
     creditosDeportes: alumno.creditos_deportes ?? 0,
   };
@@ -139,9 +152,9 @@ export function mapFormToAlumnoPayload(data: HistoricalFormData) {
  */
 export async function fetchHistoricalStudents(): Promise<HistoricalRecord[]> {
   const { data, error } = await supabase
-    .from("alumno")
-    .select(
-      `
+  .from("alumno")
+  .select(
+    `
       id,
       matricula,
       expediente,
@@ -172,8 +185,9 @@ export async function fetchHistoricalStudents(): Promise<HistoricalRecord[]> {
         version
       )
     `
-    )
-    .order("nombre");
+  )
+  .order("nombre");
+
 
   if (error) {
     console.error("Error al obtener alumnos:", error);

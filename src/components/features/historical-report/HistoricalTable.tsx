@@ -15,7 +15,7 @@ export function HistoricalTable({
   return (
     <div className="w-full overflow-x-auto">
       {/* Aumentamos el min-width porque ahora hay más columnas */}
-      <table className="w-full table-fixed min-w-[3200px]">
+      <table className="w-full table-fixed min-w-[3180px]">
         <thead className="bg-[#4A5568]">
           <tr className="flex w-full">
             <th className="w-[60px] px-2 py-3 text-left flex items-center text-xs font-normal text-white flex-shrink-0">
@@ -117,17 +117,6 @@ export function HistoricalTable({
             <th className="w-[80px] px-2 py-3 text-left text-xs font-normal text-white flex items-center flex-shrink-0">
               <div className="flex items-center justify-between w-full">
                 <span>Sexo</span>
-                <svg className="w-3 h-4 cursor-pointer" viewBox="0 0 12 16" fill="none">
-                  <path d="M6 1L11.1962 5.5H0.803848L6 1Z" fill="white" />
-                  <path d="M6 15L0.803848 10.5H11.1962L6 15Z" fill="white" />
-                </svg>
-              </div>
-            </th>
-
-            {/* ING extra actual: lo dejamos como está para no romper layout (puedes renombrarlo si quieres) */}
-            <th className="w-[80px] px-2 py-3 text-left text-xs font-normal text-white flex items-center flex-shrink-0">
-              <div className="flex items-center justify-between w-full">
-                <span>ING</span>
                 <svg className="w-3 h-4 cursor-pointer" viewBox="0 0 12 16" fill="none">
                   <path d="M6 1L11.1962 5.5H0.803848L6 1Z" fill="white" />
                   <path d="M6 15L0.803848 10.5H11.1962L6 15Z" fill="white" />
@@ -349,12 +338,6 @@ export function HistoricalTable({
               <td className="w-[80px] px-2 py-3 flex items-center flex-shrink-0">
                 <div className="text-xs text-[#3B5571] truncate">
                   {record.sexo}
-                </div>
-              </td>
-
-              <td className="w-[80px] px-2 py-3 flex items-center flex-shrink-0">
-                <div className="text-xs text-[#3B5571] truncate">
-                  {record.nivelIngles}
                 </div>
               </td>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Bentham } from "next/font/google";
 import { AttendanceRecord } from "@/types";
 import { getAttendanceResumen, createAttendance } from "@/services/attendanceService";
@@ -46,6 +46,48 @@ export default function AttendanceReportView() {
   // Búsqueda tipo "search"
   const [search, setSearch] = useState("");
 
+  // Filtros individuales (periodo, código, grupo)
+  const [filterPeriodo, setFilterPeriodo] = useState<string>("ALL");
+  const [filterCodigo, setFilterCodigo] = useState<string>("ALL");
+  const [filterGrupo, setFilterGrupo] = useState<string>("ALL");
+
+  // Opciones únicas para cada filtro, derivadas de los registros
+  const periodoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          records
+            .map((r) => r.periodo)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [records]
+  );
+
+  const codigoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          records
+            .map((r) => r.codigo_materia)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [records]
+  );
+
+  const grupoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          records
+            .map((r) => r.grupo)
+            .filter((v): v is string => !!v && v.trim() !== "")
+        )
+      ).sort(),
+    [records]
+  );
+
   // Paginación (igual estilo que Horarios)
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
@@ -80,15 +122,25 @@ export default function AttendanceReportView() {
   };
 
   // Filtro tipo buscador (periodo, materia, alumno, grupo, etc.)
-  const filteredRecords = records.filter((r) =>
-    `${r.periodo ?? ""} ${r.codigo_materia ?? ""} ${
+  const filteredRecords = records.filter((r) => {
+    const texto = `${r.periodo ?? ""} ${r.codigo_materia ?? ""} ${
       r.nombre_materia ?? ""
     } ${r.grupo ?? ""} ${r.matricula ?? ""} ${r.nombre_alumno ?? ""} ${
       r.apellido_paterno ?? ""
     } ${r.apellido_materno ?? ""}`
       .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+      .includes(search.toLowerCase());
+
+    const matchesPeriodo =
+      filterPeriodo === "ALL" || r.periodo === filterPeriodo;
+
+    const matchesCodigo =
+      filterCodigo === "ALL" || r.codigo_materia === filterCodigo;
+
+    const matchesGrupo = filterGrupo === "ALL" || r.grupo === filterGrupo;
+
+    return texto && matchesPeriodo && matchesCodigo && matchesGrupo;
+  });
 
   // === Paginación estilo Horarios ===
   const totalItems = filteredRecords.length;
@@ -317,7 +369,7 @@ const handleCreateClick = () => {
           <h1
             className={`text-2xl md:text-3xl text-[#16469B] mb-2 ${bentham.className}`}
           >
-            Resumen de Asistencia
+            Resumen de Grupos
           </h1>
 
           <p className="text-sm text-gray-600 w-full">
@@ -340,9 +392,10 @@ const handleCreateClick = () => {
       {viewMode === "table" && (
         <div className="bg-white px-3 sm:px-6 lg:px-[54px] rounded-lg shadow-lg border border-gray-200">
           {/* Header: buscador + botón Cargar archivo (como Schedule) */}
-          <div className="flex justify-between items-center px-3 pt-4 sm:pt-6 pb-4 border-b-2 border-[#16469B]">
-            {/* IZQUIERDA: buscador */}
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-3 pt-4 sm:pt-6 pb-4 border-b-2 border-[#16469B]">
+            {/* IZQUIERDA: buscador + filtros */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+              {/* Buscador */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
@@ -367,55 +420,107 @@ const handleCreateClick = () => {
                     setCurrentPage(1);
                   }}
                   placeholder="Buscar periodo, grupo, materia, alumno..."
-                  className="w-72 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-72 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+
+              {/* Filtro Periodo */}
+              <select
+                value={filterPeriodo}
+                onChange={(e) => {
+                  setFilterPeriodo(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="ALL">Todos los periodos</option>
+                {periodoOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+
+              {/* Filtro Código materia */}
+              <select
+                value={filterCodigo}
+                onChange={(e) => {
+                  setFilterCodigo(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="ALL">Todas las materias</option>
+                {codigoOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+
+              {/* Filtro Grupo */}
+              <select
+                value={filterGrupo}
+                onChange={(e) => {
+                  setFilterGrupo(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="ALL">Todos los grupos</option>
+                {grupoOptions.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* DERECHA: botón Cargar archivo */}
+            {/* DERECHA: botones (igual que ya tenías) */}
             <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setViewMode("upload")}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-[#2E4258] rounded-lg hover:bg-[#2E4258]"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <Button
+                onClick={() => setViewMode("upload")}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-[#2E4258] rounded-lg hover:bg-[#2E4258]"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Cargar archivo
-            </Button>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Cargar archivo
+              </Button>
 
-            <Button
-              variant="outline"
-              onClick={handleCreateClick}
-              className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <Button
+                variant="outline"
+                onClick={handleCreateClick}
+                className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Nuevo registro
-            </Button>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Nuevo registro
+              </Button>
+            </div>
           </div>
-          </div>
+
 
           {/* Tabla + paginación */}
           <div className="px-3 py-4">
