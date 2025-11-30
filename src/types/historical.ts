@@ -1,25 +1,56 @@
-
 export interface HistoricalRecord {
   id: number;
+
+  /** Identificación principal */
   matricula: string;
   expediente: string;
+
+  /** Nombre completo */
   nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno?: string | null;
+
+  /** Contacto */
   email: string;
+
+  /** Estado del alumno */
   estadoAcademico: "ACTIVO" | "INACTIVO";
 
-  estadoAcreditacion?: "Acreditado" | "Pendiente" | "En proceso" | "Revisión" | "N/A";
-  kpi?: string; 
-
+  /** Inglés (nivel_ingles_actual) */
   nivelIngles: string;
+
+  /** Plan de estudios (se usa la etiqueta, no el ID) */
   planEstudios: string;
-  creditos: string;
+
+  /** Sexo */
   sexo: string;
-  nip?: string;
-  fechaNacimiento: string;
+
+  /** Créditos totales */
+  creditos: number;
+
+  /** Fecha nacimiento */
+  fechaNacimiento: string | null;
+
+  /** Tipo alumno */
   tipoAlumno: string;
-  promedioGeneral: string;
-  horarioPerido: string;
-  acciones: string;
+
+  /** Promedios */
+  promedioGeneral: number | null;
+  promedioPeriodo: number | null;
+
+  /** Historial académico */
+  materiasAprobadas: number;
+  materiasReprobadas: number;
+  periodoInicio: number | null;
+
+  /** Documentos de titulación */
+  actaExamenProfesional?: string | null;
+  constanciaExencionExamenProfesional?: string | null;
+  fechaTitulacion?: string | null;
+
+  /** Créditos extracurriculares */
+  creditosCulturest: number;
+  creditosDeportes: number;
 }
 
 export interface FileHistoryRecord {

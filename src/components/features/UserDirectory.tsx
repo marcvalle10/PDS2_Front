@@ -1,10 +1,9 @@
 import React from "react";
 import { Bentham } from "next/font/google";
 import { Button, Modal } from "@/components/ui";
-import { UniversityHeader, Pagination } from "@/components/shared";
+import { Pagination } from "@/components/shared";
+import { SearchFilters, UserTable } from "./user-directory/components";
 import { useUserDirectory } from "@/hooks";
-import { SearchFilters } from "./user-directory/components/SearchFilters";
-import { UserTable } from "./user-directory/components/UserTable";
 
 // Configurar la fuente Bentham
 const bentham = Bentham({
@@ -14,6 +13,7 @@ const bentham = Bentham({
 
 export function UserDirectory() {
   const {
+    // tabla / filtros
     searchTerm,
     roleFilter,
     showRoleDropdown,
@@ -22,66 +22,258 @@ export function UserDirectory() {
     currentPage,
     currentUsers,
     totalPages,
+    loading,
     handleSearch,
     handleRoleFilter,
-    handleModifyUserRole,
     handleDeleteUser,
     confirmDelete,
     paginate,
     setShowRoleDropdown,
     setShowDeleteModal,
+
+    // crear / editar profesor
+    showCreateModal,
+    setShowCreateModal,
+    showEditModal,
+    setShowEditModal,
+    editingUser,
+    formValues,
+    handleFormChange,
+    openCreateModal,
+    openEditModal,
+    submitCreateProfesor,
+    submitEditProfesor,
   } = useUserDirectory();
 
   return (
-    <div className="px-3 sm:px-6 lg:px-[80px] pt-2 bg-[#EDE9FF]">
-      <div
-        className="min-h-screen"
-        style={{ background: "linear-gradient(to bottom, #e8e4ff, #f3f0ff)" }}
-      >
-        <UniversityHeader />
+    <>
+      {/* Main Content */}
+      <div className="bg-white px-3 sm:px-6 lg:px-[45px] rounded-lg shadow-lg border border-gray-200">
+        {/* Title */}
+        <div className="px-3 pt-4 sm:pt-6 pb-2 border-b-2 border-[#16469B] flex items-center justify-between">
+          <h3
+            className={`text-xl sm:text-2xl lg:text-3xl font-normal text-blue-800 ${bentham.className}`}
+          >
+            Directorio de usuarios
+          </h3>
 
-        {/* Main Content */}
-        <div className="bg-white px-3 sm:px-6 lg:px-[45px] rounded-lg shadow-lg border border-gray-200">
-          {/* Title */}
-          <div className="px-3 pt-4 sm:pt-6 pb-2 border-b-2 border-[#16469B]">
-            <h3
-              className={`text-xl sm:text-2xl lg:text-3xl font-normal text-blue-800 ${bentham.className}`}
-            >
-              Directorio de usuarios
-            </h3>
-          </div>
-
-          {/* Search and Filters */}
-          <SearchFilters
-            searchTerm={searchTerm}
-            roleFilter={roleFilter}
-            showRoleDropdown={showRoleDropdown}
-            onSearchChange={handleSearch}
-            onRoleFilterChange={handleRoleFilter}
-            onToggleRoleDropdown={() => setShowRoleDropdown(!showRoleDropdown)}
-          />
-
-          {/* Table */}
-          <UserTable
-            currentUsers={currentUsers}
-            onModifyUserRole={handleModifyUserRole}
-            onDeleteUser={handleDeleteUser}
-          />
-
-          <div
-            className={`px-3 pt-4 sm:pt-1 pb-2 mt-1 border-b-2 border-[#16469B] ${
-              totalPages <= 1 ? "mb-16" : ""
-            }`}
-          ></div>
-
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={paginate}
-          />
+          <Button
+            onClick={openCreateModal}
+            className="bg-[#16469B] hover:bg-[#123a7f] text-white px-4 py-2 rounded-2xl text-xs sm:text-sm"
+          >
+            + Agregar profesor
+          </Button>
         </div>
+
+        {/* Search and Filters */}
+        <SearchFilters
+          searchTerm={searchTerm}
+          roleFilter={roleFilter}
+          showRoleDropdown={showRoleDropdown}
+          onSearchChange={handleSearch}
+          onRoleFilterChange={handleRoleFilter}
+          onToggleRoleDropdown={() => setShowRoleDropdown(!showRoleDropdown)}
+        />
+
+        {/* Table */}
+        <UserTable
+          currentUsers={currentUsers}
+          onEditUser={openEditModal}
+          onDeleteUser={handleDeleteUser}
+          loading={loading}
+        />
+
+        <div
+          className={`px-3 pt-4 sm:pt-1 pb-2 mt-1 border-b-2 border-[#16469B] ${
+            totalPages <= 1 ? "mb-16" : ""
+          }`}
+        ></div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={paginate}
+        />
       </div>
+
+      {/* Modal EDITAR profesor */}
+      {showEditModal && editingUser && (
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title=""
+        >
+          <div className="pt-1 py-4 px-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Editar profesor
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Nombre completo
+                </label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formValues.nombre}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Correo institucional
+                </label>
+                <input
+                  type="email"
+                  name="correo"
+                  value={formValues.correo}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Número de empleado
+                </label>
+                <input
+                  type="number"
+                  name="numEmpleado"
+                  value={formValues.numEmpleado}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Rol
+                </label>
+                <select
+                  name="rolId"
+                  value={formValues.rolId}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">Selecciona un rol</option>
+                  <option value={1}>Administrador</option>
+                  <option value={2}>Coordinador</option>
+                  <option value={3}>Profesor</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowEditModal(false)}
+                className="px-6 rounded-2xl py-2 text-sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={submitEditProfesor}
+                className="bg-[#16469B] hover:bg-[#123a7f] text-white px-6 rounded-2xl py-2 text-sm"
+              >
+                Guardar cambios
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal CREAR profesor */}
+      {showCreateModal && (
+        <Modal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          title=""
+        >
+          <div className="pt-1 py-4 px-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Crear profesor
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Nombre completo
+                </label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formValues.nombre}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Correo institucional
+                </label>
+                <input
+                  type="email"
+                  name="correo"
+                  value={formValues.correo}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Número de empleado
+                </label>
+                <input
+                  type="number"
+                  name="numEmpleado"
+                  value={formValues.numEmpleado}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Rol
+                </label>
+                <select
+                  name="rolId"
+                  value={formValues.rolId}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">Selecciona un rol</option>
+                  <option value={1}>Administrador</option>
+                  <option value={2}>Coordinador</option>
+                  <option value={3}>Profesor</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateModal(false)}
+                className="px-6 rounded-2xl py-2 text-sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={submitCreateProfesor}
+                className="bg-[#16469B] hover:bg-[#123a7f] text-white px-6 rounded-2xl py-2 text-sm"
+              >
+                Guardar
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && userToDelete && (
@@ -93,6 +285,7 @@ export function UserDirectory() {
           <div className="text-center pt-1 py-4 px-8">
             <div className="mb-4">
               <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                {/* ícono de basura */}
                 <svg
                   width="24"
                   height="24"
@@ -136,6 +329,6 @@ export function UserDirectory() {
           </div>
         </Modal>
       )}
-    </div>
+    </>
   );
 }

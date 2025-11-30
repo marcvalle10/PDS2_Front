@@ -1,4 +1,4 @@
-export * from "./user-directory";
+export { UserDirectory } from "./user-directory";
 export * from "./file-upload";
 export * from "./historical-report";
 export * from "./schedule-report";

@@ -3,6 +3,12 @@ import { Bentham } from "next/font/google";
 import { Button, Modal } from "@/components/ui";
 import { HistoricalTable } from "./HistoricalTable";
 import { EditModal } from "./components/EditModal";
+import {
+  createHistoricalStudent,
+  updateHistoricalStudent,
+  deleteHistoricalStudent,
+  HistoricalFormData,
+} from "@/services/reportService";
 
 import { useReports } from "@/hooks/useReports";
 import { FileHistoryRecord, HistoricalRecord } from "@/types";
@@ -37,7 +43,7 @@ export function HistoricalReportView() {
     files,
     removeFile,
     removeStudent,
-    updateStudent,
+    //updateStudent,
     refreshFiles,
     refreshStudents,
     uploadFile,
@@ -131,38 +137,56 @@ export function HistoricalReportView() {
     refreshFiles();
   };
 
-  const handleDeleteStudent = (student: HistoricalRecord) => {
-    removeStudent(student);
-    refreshStudents();
+  const handleDeleteStudent = async (student: HistoricalRecord) => {
+    try {
+      await deleteHistoricalStudent(student.id); // DELETE en Supabase
+      removeStudent(student);                    // opcional: sync rápido en front
+      await refreshStudents();                   // recarga desde BD
+    } catch (err) {
+      console.error("Error al eliminar alumno:", err);
+    }
   };
+
 
   const handleEditRecord = (record: HistoricalRecord) => {
     setEditingRecord(record);
     setIsModalOpen(true);
   };
 
-  async function handleSave(updated: HistoricalRecord) {
-    updateStudent(editingRecord!.id, updated);
-    refreshStudents();
-    setIsModalOpen(false);
-    setEditingRecord(null);
+  async function handleSave(data: HistoricalFormData) {
+    // 👉 aquí NO atrapamos el error, dejamos que suba al modal
+    if (editingRecord && editingRecord.id && editingRecord.id !== 0) {
+      // EDITAR en BD
+      await updateHistoricalStudent(editingRecord.id, data);
+    } else {
+      // CREAR en BD
+      await createHistoricalStudent(data);
+    }
+
+    // Si todo salió bien, recargamos la tabla desde Supabase
+    await refreshStudents();
   }
+
+
+
 
   // Filtrar datos según búsqueda y estatus
   const filteredData = students.filter((record) => {
-    const matchesSearch =
-      !searchTerm ||
-      record.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.matricula.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.expediente.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesSearch =
+    !searchTerm ||
+    record.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.matricula.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.expediente.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === "Sin Especificar" ||
-      record.estadoAcademico === statusFilter;
+  const matchesStatus =
+    statusFilter === "Sin Especificar" ||
+    record.estadoAcademico.toUpperCase() === statusFilter.toUpperCase();
 
-    return matchesSearch && matchesStatus;
-  });
+  return matchesSearch && matchesStatus;
+});
+
+
 
   function getStatusStyle(status: string) {
     switch (status) {
@@ -334,40 +358,38 @@ export function HistoricalReportView() {
             </Button>
 
             <Button
-  onClick={() => {
-    const emptyRecord = {
-      id: 0, // id dummy, el backend luego pondrá el real al crear
-      nombre: "",
-      email: "",
-      matricula: "",
-      expediente: "",
-      estadoAcademico: "ACTIVO",
-      // el resto de campos faltantes se quedarán como undefined
-      // y el modal solo mostrará los que tengas en inputs
-    } as unknown as HistoricalRecord;
+            onClick={() => {
+              const emptyRecord = {
+                id: 0, // id dummy, el backend luego pondrá el real al crear
+                nombre: "",
+                email: "",
+                matricula: "",
+                expediente: "",
+                estadoAcademico: "ACTIVO",
+                // el resto de campos faltantes se quedarán como undefined
+                // y el modal solo mostrará los que tengas en inputs
+              } as unknown as HistoricalRecord;
 
-    setEditingRecord(emptyRecord);
-    setIsModalOpen(true);
-  }}
-  className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
->
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 4v16m8-8H4"
-    />
-  </svg>
-  Crear registro
-</Button>
-
-
+              setEditingRecord(emptyRecord);
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Crear registro
+            </Button>
           </div>
         </div>
 
@@ -383,22 +405,7 @@ export function HistoricalReportView() {
           <EditModal
             record={editingRecord ?? {}}
             mode={editingRecord?.id ? "edit" : "create"}
-            onSave={(data) => {
-              if (editingRecord?.id) {
-                // EDITAR
-                updateStudent(editingRecord.id, data);
-              } else {
-                // CREAR
-                // Tu hook ya tiene "students", así que agregarías:
-                const newId = Math.floor(Math.random() * 1000000);
-                const nuevo = { id: newId, ...data };
-
-                // add to store
-                refreshStudents(); // si tienes addStudent, úsalo en su lugar
-              }
-              refreshStudents();
-              setEditingRecord(null);
-            }}
+            onSave={handleSave}
             onClose={() => {
               setIsModalOpen(false);
               setEditingRecord(null);

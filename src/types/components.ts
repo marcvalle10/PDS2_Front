@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "./user";
+import { User, ProfesorFormValues } from "./user";
 
 /**
  * Props para el componente SearchFilters
@@ -18,7 +18,7 @@ export interface SearchFiltersProps {
  */
 export interface UserTableProps {
   currentUsers: User[];
-  onModifyUserRole: (user: User, roleId: number) => void;
+  onEditUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
   loading?: boolean;
   showActions?: boolean;
@@ -40,11 +40,12 @@ export interface PaginationProps {
   onPageChange: (pageNumber: number) => void;
 }
 
+
 /**
  * Valor de retorno del hook useUserDirectory
  */
 export interface UseUserDirectoryReturn {
-  // State
+  // State tabla / filtros
   searchTerm: string;
   roleFilter: string;
   showRoleDropdown: boolean;
@@ -56,7 +57,7 @@ export interface UseUserDirectoryReturn {
   loading?: boolean;
   error?: string | null;
 
-  // Handlers
+  // Handlers tabla / filtros
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleRoleFilter: (role: string) => void;
   handleDeleteUser: (user: User) => void;
@@ -65,4 +66,22 @@ export interface UseUserDirectoryReturn {
   paginate: (pageNumber: number) => void;
   setShowRoleDropdown: React.Dispatch<React.SetStateAction<boolean>>;
   setShowDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // ===== Crear / Editar profesor =====
+  showCreateModal: boolean;
+  setShowCreateModal: React.Dispatch<React.SetStateAction<boolean>>;
+  showEditModal: boolean;
+  setShowEditModal: React.Dispatch<React.SetStateAction<boolean>>;
+  editingUser: User | null;
+
+  formValues: ProfesorFormValues;
+  handleFormChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
+
+  openCreateModal: () => void;
+  openEditModal: (user: User) => void;
+
+  submitCreateProfesor: () => Promise<void> | void;
+  submitEditProfesor: () => Promise<void> | void;
 }

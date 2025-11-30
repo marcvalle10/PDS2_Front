@@ -3,11 +3,21 @@
  */
 export interface User {
   id: number;
+  profesorId: number;
+  usuarioId: number;
   nombre: string;
   email: string;
+  numEmpleado: number;
   rol: string;
-  role_id?: number;
-  imagen?: string;
+  rolId: number;
+  imagen?: string | null;
+}
+
+export interface ProfesorFormValues {
+  nombre: string;
+  correo: string;
+  numEmpleado: string;
+  rolId: number | "";
 }
 
 /**
@@ -23,9 +33,10 @@ export interface Role {
   nombre: UserRole;
 }
 
+
 /**
  * Datos de usuarios mock para desarrollo
- */
+ *//*
 export const mockUsers: User[] = [
   {
     id: 1,
@@ -106,3 +117,4 @@ export const mockUsers: User[] = [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
   },
 ];
+*/
